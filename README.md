@@ -35,4 +35,4 @@ echo $KC_CLIENT_RESPONSE | jq -C .
 
 **custom-client-rest-resource** is the name of the component that provides the custom rest endpoint
 
-*The name of the customer being searched for is the last value in the path*
+*The name of the customer being searched for is the last value in the path* **admin-cli**

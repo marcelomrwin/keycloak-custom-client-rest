@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: docker.io/library/postgres:16
+    container_name: keycloak-postgres
+    hostname: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - TZ=Europe/Madrid
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=password
+  keycloak:
+#    image: registry.redhat.io/rhbk/keycloak-rhel9:24-8
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak-24
+    depends_on:
+      - postgres
+    restart: always
+    ports:
+      - 8180:8080
+      - 8543:8443
+    command:
+      - start-dev
+    volumes:
+      - ./kc_data:/opt/keycloak/data
+      - ./com.redhat-keycloak-custom-rest.jar:/opt/keycloak/providers/custom-rest.jar
+    environment:
+      DEBUG_PORT: '*:8787'
+      TZ: Europe/Madrid
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_LOG: console,file
+      KC_LOG_LEVEL: INFO,org.keycloak.transaction:warn,org.keycloak.services.scheduled:warn,org.hibernate:info,org.infinispan.protostream:info
+      KC_LOG_FILE: /opt/keycloak/data/logs/keycloak.log
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KC_FEATURES: token-exchange,client-secret-rotation,step-up-authentication,docker,admin-fine-grained-authz
